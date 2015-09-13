@@ -147,6 +147,11 @@ public:
 
         auto weight = obsrv_model_.weight_threshold();
         auto prob_y = body_gaussian_.probability(input_obsrv);
+//        std::cout << "mean: " << body_gaussian_.mean() << "  cov: "
+//                     << body_gaussian_.covariance() << "   input: "
+//                        << input_obsrv << "   prob: " << prob_y << std::endl;
+
+
         auto prob_tail = obsrv_model_
                             .tail_model()
                             .probability(input_obsrv, mean_state_);
@@ -190,14 +195,14 @@ public:
 
 //        if(y(0) < 0.9)
 //        {
-//            std::cout << "feature: " << y.transpose()
-//                      << "    weight: " << weight
-//                      << "    input_obsrv: " << input_obsrv.transpose()
-//                      << "    normalizer: " << normalizer
-//                      << std::endl;
+//        std::cout << "feature: " << y.transpose()
+//                  << "    weight: " << weight
+//                  << "    input_obsrv: " << input_obsrv.transpose()
+//                  << "    normalizer: " << normalizer
+//                  << std::endl;
 
-//            std::cout << "prob_y " << prob_y << "  prob_tail: " << prob_tail <<
-//                         std::endl;
+//        std::cout << "prob_y " << prob_y << "  prob_tail: " << prob_tail <<
+//                     std::endl;
 //        }
 
         return y;
