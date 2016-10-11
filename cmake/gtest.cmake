@@ -12,7 +12,7 @@ if(NOT ${PROJECT_NAME}_USING_CATKIN)
 
     ExternalProject_Add(
         ${GTEST_FRAMEWORK}
-        URL https://googletest.googlecode.com/files/gtest-1.6.0.zip
+        URL https://github.com/google/googletest/archive/release-1.6.0.zip
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
         INSTALL_COMMAND "" # do not install this library
         CMAKE_ARGS -Dgtest_disable_pthreads=ON -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -20,11 +20,16 @@ if(NOT ${PROJECT_NAME}_USING_CATKIN)
 
     ExternalProject_Get_Property(${GTEST_FRAMEWORK} source_dir binary_dir)
 
+    message(STATUS "source_dir ${source_dir} binary_dir ${binary_dir}")
+
     set(gtest_INCLUDE_DIR ${source_dir}/include)
     set(gtest_LIBRARY_PATH
             ${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest.a)
     set(gtest_main_LIBRARY_PATH
             ${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest_main.a)
+
+    message(STATUS "gtest_LIBRARY_PATH is ${gtest_LIBRARY_PATH}")
+    message(STATUS "gtest_main_LIBRARY_PATH is ${gtest_main_LIBRARY_PATH}")
 
     add_library(${gtest_LIBRARY} STATIC IMPORTED GLOBAL)
     set_target_properties(${gtest_LIBRARY}

@@ -55,7 +55,7 @@ template <typename...T> struct CollapseJoin;
  * Collapses the argument pack of an adaptive Join operator into Model<T...> or
  * given sequence within the Join<...> operator pack. Unlike CollapseJoin,
  * CollapseAdaptiveJoin results in Adaptive<Model<...>, JointTransition<...>>
- * Where JointTransition<...> repreents the joint process of all parameters
+ * Where JointTransition<...> represents the joint process of all parameters
  * of the final adaptive Model<...>.
  */
 template <typename...T> struct CollapseAdaptiveJoin;
