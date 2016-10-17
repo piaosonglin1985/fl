@@ -26,9 +26,9 @@
 #include <fl/util/math/linear_algebra.hpp>
 
 #include <fl/filter/particle/particle_filter.hpp>
-#include <fl/filter/gaussian/gaussian_filter_kf.hpp>
+#include <fl/filter/gaussian/gaussian_filter_linear.hpp>
 #include <fl/model/sensor/linear_sensor.hpp>
-#include <fl/model/process/linear_transition.hpp>
+#include <fl/model/transition/linear_transition.hpp>
 
 template<typename Vector, typename Matrix>
 bool moments_are_similar(Vector mean_a, Matrix cov_a,
@@ -66,8 +66,8 @@ TEST(particle_filter, predict)
 
     typedef Eigen::Matrix<double, 3, 3> Matrix;
 
-    typedef fl::LinearGaussianProcessModel<State, Input> ProcessModel;
-    typedef fl::LinearObservationModel<Observation, State> ObservationModel;
+    typedef fl::LinearTransition<State, State, Input> ProcessModel;
+    typedef fl::LinearGaussianSensor<Observation, State> ObservationModel;
 
     // particle filter
     typedef fl::ParticleFilter<ProcessModel, ObservationModel> ParticleFilter;
@@ -81,16 +81,14 @@ TEST(particle_filter, predict)
     srand(0);
     size_t N_particles = 10000;
     size_t N_steps = 10;
-    size_t delta_time = 1;
-
 
     // create process model
     ProcessModel transition;
     {
-        transition.A(some_rotation());
+        transition.dynamics_matrix(some_rotation());
         Matrix R = some_rotation();
         Matrix D = Eigen::DiagonalMatrix<double, 3>(1, 3.5, 1.2);
-        transition.covariance(R*D*R.transpose());
+        transition.noise_matrix(R*D*R.transpose());
     }
 
     // create observation model
@@ -121,11 +119,9 @@ TEST(particle_filter, predict)
     // run prediction
     for(size_t i = 0; i < N_steps; i++)
     {
-        particle_filter.predict(delta_time, State::Zero(),
-                                particle_belief, particle_belief);
+        particle_filter.predict(particle_belief, State::Zero(), particle_belief);
 
-        gaussian_filter.predict(delta_time, State::Zero(),
-                                gaussian_belief, gaussian_belief);
+        gaussian_filter.predict(gaussian_belief, State::Zero(), gaussian_belief);
 
         EXPECT_TRUE(moments_are_similar(
                         particle_belief.mean(), particle_belief.covariance(),
@@ -141,8 +137,8 @@ TEST(particle_filter, update)
 
     typedef Eigen::Matrix<double, 3, 3> Matrix;
 
-    typedef fl::LinearGaussianProcessModel<State, Input> ProcessModel;
-    typedef fl::LinearObservationModel<Observation, State> ObservationModel;
+    typedef fl::LinearTransition<State, State, Input> ProcessModel;
+    typedef fl::LinearGaussianSensor<Observation, State> ObservationModel;
     // particle filter
     typedef fl::ParticleFilter<ProcessModel, ObservationModel> ParticleFilter;
     typedef ParticleFilter::Belief ParticleBelief;
@@ -160,10 +156,10 @@ TEST(particle_filter, update)
     // create process model
     ProcessModel transition;
     {
-        transition.A(some_rotation());
+        transition.dynamics_matrix(some_rotation());
         Matrix R = some_rotation();
         Matrix D = Eigen::DiagonalMatrix<double, 3>(1, 3.5, 1.2);
-        transition.covariance(R*D*R.transpose());
+        transition.noise_matrix(R*D*R.transpose());
     }
 
     // create observation model
@@ -197,8 +193,8 @@ TEST(particle_filter, update)
     {
         Observation observation(0.5, 0.5, 0.5);
 
-        particle_filter.update(observation, particle_belief, particle_belief);
-        gaussian_filter.update(observation, gaussian_belief, gaussian_belief);
+        particle_filter.update(particle_belief, observation, particle_belief);
+        gaussian_filter.update(gaussian_belief, observation, gaussian_belief);
 
         EXPECT_TRUE(moments_are_similar(
                         particle_belief.mean(), particle_belief.covariance(),
@@ -215,8 +211,8 @@ TEST(particle_filter, predict_and_update)
 
     typedef Eigen::Matrix<double, 3, 3> Matrix;
 
-    typedef fl::LinearGaussianProcessModel<State, Input> ProcessModel;
-    typedef fl::LinearObservationModel<Observation, State> ObservationModel;
+    typedef fl::LinearTransition<State, State, Input> ProcessModel;
+    typedef fl::LinearGaussianSensor<Observation, State> ObservationModel;
 
     // particle filter
     typedef fl::ParticleFilter<ProcessModel, ObservationModel> ParticleFilter;
@@ -230,16 +226,14 @@ TEST(particle_filter, predict_and_update)
     srand(0);
     size_t N_particles = 10000;
     size_t N_steps = 10;
-    size_t delta_time = 1;
-
 
     // create process model
     ProcessModel transition;
     {
-        transition.A(some_rotation());
+        transition.dynamics_matrix(some_rotation());
         Matrix R = some_rotation();
         Matrix D = Eigen::DiagonalMatrix<double, 3>(1, 3.5, 1.2);
-        transition.covariance(R*D*R.transpose());
+        transition.noise_matrix(R*D*R.transpose());
     }
 
     // create observation model
@@ -274,22 +268,19 @@ TEST(particle_filter, predict_and_update)
     for(size_t i = 0; i < N_steps; i++)
     {
         // simulate system
-        state = transition.predict_state(delta_time,
-                                            state,
-                                            standard_gaussian.sample(),
-                                            State::Zero());
+        state = transition.state(state,
+                                 standard_gaussian.sample(),
+                                 State::Zero());
         Observation observation =
                 sensor.observation(state, standard_gaussian.sample());
 
         // predict
-        particle_filter.predict(delta_time, State::Zero(),
-                                particle_belief, particle_belief);
-        gaussian_filter.predict(delta_time, State::Zero(),
-                                gaussian_belief, gaussian_belief);
+        particle_filter.predict(particle_belief, State::Zero(), particle_belief);
+        gaussian_filter.predict(gaussian_belief, State::Zero(), gaussian_belief);
 
         // update
-        particle_filter.update(observation, particle_belief, particle_belief);
-        gaussian_filter.update(observation, gaussian_belief, gaussian_belief);
+        particle_filter.update(particle_belief, observation, particle_belief);
+        gaussian_filter.update(gaussian_belief, observation, gaussian_belief);
     }
 
     State delta = particle_belief.mean() - gaussian_belief.mean();

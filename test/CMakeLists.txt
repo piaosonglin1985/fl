@@ -94,11 +94,11 @@ fl_add_test(
 
 # == Gaussian filters tests ================================================== #
 
-#fl_add_test(
-#    NAME gaussian_filter_kalman_filter
-#    SOURCES typecast.hpp
-#            gaussian_filter/gaussian_filter_test_suite.hpp
-#            gaussian_filter/kalman_filter_test.cpp)
+fl_add_test(
+    NAME gaussian_filter_kalman_filter
+    SOURCES typecast.hpp
+            gaussian_filter/gaussian_filter_test_suite.hpp
+            gaussian_filter/kalman_filter_test.cpp)
 
 #fl_add_test(
 #    NAME    gaussian_filter_unscented_kalman_filter
@@ -134,9 +134,13 @@ fl_add_test(
 ##target_link_libraries(particle_filter_test
 ##                      ${catkin_LIBRARIES})
 
-#fl_add_test(
-#    NAME    particle_filter_fixture
-#    SOURCES particle_filter/particle_filter_fixture_test.cpp)
+fl_add_test(
+    NAME    particle_filter_fixture
+    SOURCES particle_filter/particle_filter_fixture_test.cpp)
+    
+fl_add_test(
+    NAME    particle_filter
+    SOURCES particle_filter/particle_filter_test.cpp)    
 
 #fl_add_test(frb_particle_filter_test
 #                 particle_filter/frb_particle_filter_test.cpp

@@ -106,7 +106,7 @@ protected:
         Matrix R = some_rotation();
         Matrix D = Eigen::DiagonalMatrix<fl::Real, 3>(1, 3.5, 1.2);
 
-        transition.noise_covariance(R*D*R.transpose());
+        transition.noise_matrix(R*D*R.transpose());
 
         return transition;
     }
@@ -122,7 +122,7 @@ protected:
         Matrix R = some_rotation();
         Matrix D = Eigen::DiagonalMatrix<fl::Real, 3>(3.1, 1.0, 1.3);
 
-        sensor.noise_covariance(R*D*R.transpose());
+        sensor.noise_matrix(R*D*R.transpose());
 
         return sensor;
     }

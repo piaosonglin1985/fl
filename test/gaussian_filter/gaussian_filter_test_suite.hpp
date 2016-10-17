@@ -65,6 +65,7 @@ protected:
     typedef Eigen::Matrix<fl::Real, StateSize, 1> State;
     typedef Eigen::Matrix<fl::Real, InputSize, 1> Input;
     typedef Eigen::Matrix<fl::Real, ObsrvSize, 1> Obsrv;
+    typedef State Noise;
 
     GaussianFilterTest()
         : predict_steps_(30),
@@ -83,7 +84,7 @@ protected:
         enum : signed int { Sizes = fl::TestSize<1, TestType>::Value };
 
         typedef fl::LinearTransition<
-                    State, Input
+                    State, Noise, Input
                 > LinearTransition;
 
         typedef fl::LinearGaussianSensor<
@@ -92,7 +93,7 @@ protected:
 
         LinearTransition create_linear_state_model()
         {
-            auto model = LinearTransition(StateDim, InputDim);
+            auto model = LinearTransition(StateDim, StateDim, InputDim);
 
             auto A = model.create_dynamics_matrix();
             auto Q = model.create_noise_matrix();
